@@ -1,0 +1,430 @@
+﻿Public Class DCF
+    Dim WithEvents wc As New Net.WebClient()
+    Dim path = ""
+    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+        On Error Resume Next
+        Panel1.Enabled = False
+        If TextBox1.Text = "" Then
+            If ListBox1.Items.Count <> 0 Then
+                If ListBox1.SelectedItems.Count <> 0 Then
+                    TextBox1.Text = ListBox1.SelectedItems(0).ToString.Trim
+                Else
+                    ListBox1.SelectedIndices.Add(0)
+                End If
+            Else
+                GoTo s
+            End If
+        End If
+        TextBox2.Text = ""
+        Dim url = TextBox1.Text
+        If TextBox3.Text.Trim <> "" Then
+            path = TextBox3.Text + "\" + xi
+        Else
+            GoTo s1
+        End If
+        MkDir(TextBox3.Text)
+        'WebBrowser1.Url = New Uri("about:blank")
+        'WebBrowser1.Url = New Uri(url)
+        'MsgBox("开始获取...", MsgBoxStyle.Information)
+        'Dim yx = 0
+        'While WebBrowser1.IsBusy = True And yx < 1000
+        '    yx = yx + 1
+        'End While
+        Dim sd = ""
+        sd = wc.DownloadString(New Uri(url))
+        TextBox1.Enabled = False : TextBox2.Enabled = False : TextBox3.Enabled = False
+        TextBox2.Text = getdurl(sd)
+        TextBox1.Enabled = True : TextBox2.Enabled = True : TextBox3.Enabled = True
+        Panel1.Enabled = True
+        Exit Sub
+s:      Button3_Click(Nothing, Nothing) : Panel1.Enabled = True
+        Exit Sub
+s1:     Button8_Click(Nothing, Nothing) : Panel1.Enabled = True
+    End Sub
+    Function getdurl(ByVal curi As String)
+        On Error Resume Next
+        Return getinfo(curi, "downloadUrl=", """")
+    End Function
+    Function getinfo(ByVal txs As String, ByVal tsz As String, ByVal fgh As String)
+        On Error Resume Next
+        Dim x = 0 : Dim p = 0 : Dim y = 0 : Dim z = 0 : Dim sz = tsz
+        Do
+            If Mid(txs, x + 1, sz.Length) = sz Then
+                p = 1
+                ' MsgBox(x)
+            End If
+            x = x + 1
+        Loop Until p = 1 Or x >= txs.Length - 1
+        If p = 1 Then
+            p = 0
+            x = x + sz.Length - 1
+            Do
+                If Mid(txs, x + 1, 1) = fgh Then
+                    p = 1
+                    y = x
+                    '  MsgBox(x)
+                End If
+                x = x + 1
+            Loop Until p = 1 Or x >= txs.Length - 1
+        End If
+        If p = 1 Then
+            p = 0
+            Do
+                If Mid(txs, x + 1, 1) = fgh Then
+                    p = 1
+                    z = x
+                    '   MsgBox(x)
+                End If
+                x = x + 1
+            Loop Until p = 1 Or x >= txs.Length - 1
+        End If
+        If x <> 0 And y <> 0 And z <> 0 Then
+            ' MsgBox(txs.Substring(y + 1, z - y - 1))
+            Return txs.Substring(y + 1, z - y - 1)
+        Else
+            Return ""
+        End If
+    End Function
+    Function getdown(ByVal xurl As String, ByVal xpath As String)
+        On Error Resume Next
+
+        Shell(My.Application.Info.DirectoryPath + "\Downloader.exe" + " " + xurl.Trim + " " + CStr(NumericUpDown2.Value).Trim, AppWinStyle.Hide, True)
+        'Dim wcn = New System.Net.WebClient
+        ''wc.DownloadFile(xurl, xpath)
+        'wcn.DownloadFileAsync(New Uri(xurl), xpath)
+
+        'Dim kx = New test
+        'kx.xr = xurl
+        'kx.yr = xpath
+        'kx.zr = ct
+        'kx.ShowDialog()
+    End Function
+    Public inc As Integer
+    Public xinc As Integer
+    Public ruri As String
+    Public rpath As String
+    Public lx As New ListBox
+    Public xi As String
+    Public ct As Integer
+    Private Sub Button2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button2.Click
+        On Error Resume Next
+        savereg()
+        Button9.Enabled = True
+        Panel1.Enabled = False
+        xcc = 0
+        If ListBox1.Items.Count <> 0 Then
+            TextBox1.Text = ""
+            TextBox2.Text = ""
+            ruri = ""
+            If TextBox3.Text.Trim <> "" Then
+                rpath = TextBox3.Text + "\" + xi
+            Else
+                GoTo s1
+            End If
+            MkDir(TextBox3.Text)
+            lx.Items.Clear()
+            For c = 0 To ListBox1.Items.Count - 1
+                lx.Items.Add(ListBox1.Items(c).ToString.Trim)
+            Next
+            Timer1.Enabled = True
+            Me.Text = "DBank Cheater - 已刷 " + CStr(inc) + " 次"
+            NotifyIcon1.Text = "DBank Cheater - " + xi + " - 已刷 " + CStr(inc) + " 次"
+            ct = NumericUpDown2.Value
+            BackgroundWorker1.RunWorkerAsync()
+        Else
+            Button3_Click(Nothing, Nothing)
+            Panel1.Enabled = True
+        End If
+        Exit Sub
+s1:     Button8_Click(Nothing, Nothing) : Panel1.Enabled = True
+    End Sub
+    Function getdatename()
+        Return Date.Now.ToString.Trim.Replace(":", "_").Replace("/", "").Replace("\", "").Replace(" ", "") + ".dcf"
+    End Function
+    ''使用此类下载档案 并由 WithEvents 来联系相关的事件程序
+    'Private WithEvents myWebclient As Net.WebClient = New Net.WebClient
+    ''进度改变时 发生的事件
+    'Private Sub myWebclient_DownloadProgressChanged(ByVal sender As Object, ByVal e As System.Net.DownloadProgressChangedEventArgs) Handles myWebclient.DownloadProgressChanged
+    '    ProgressBar1.Value = e.ProgressPercentage
+    '    'e.BytesReceived是接受文件的bytes
+    '    'e.TotalBytesToReceive是文件的总大小
+    '    ' e.ProgressPercentage 是当前下载进度
+    'End Sub
+    ''下载完成时 发生的事件
+    'Private Sub myWebclient_DownloadFileCompleted(ByVal sender As Object, ByVal e As System.ComponentModel.AsyncCompletedEventArgs) Handles myWebclient.DownloadFileCompleted
+    '    If e.Error Is Nothing Then
+    '        MsgBox("下載完成")
+    '    Else
+    '        MessageBox.Show(e.Error.Message) '捕获异常
+    '    End If
+    'End Sub
+    ''下载按钮
+    'Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+    '    myWebclient.DownloadFileAsync(New Uri("http://www.baidu.com/img/baidu_jgylogo2.gif"), "d:\1.gif")
+    'End Sub
+    Private Sub Button8_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button8.Click
+        With New FolderBrowserDialog
+            .Description = "请输入缓存目录路径："
+            .ShowNewFolderButton = True
+            If .ShowDialog = Windows.Forms.DialogResult.OK Then
+                TextBox3.Text = .SelectedPath
+            End If
+        End With
+    End Sub
+    Private Sub Button3_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button3.Click
+        Dim r = InputBox("请输入华为网盘链接：", "DBank Cheater").Trim
+        If r <> "" Then
+            ListBox1.Items.Remove(r)
+            ListBox1.Items.Add(r)
+        End If
+    End Sub
+    Private Sub Button4_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button4.Click
+        TextBox1.Text = ""
+        TextBox2.Text = ""
+        If ListBox1.Text <> "" Then
+            For x = 0 To ListBox1.SelectedIndices.Count - 1
+                ListBox1.Items.Remove(ListBox1.SelectedItems(0))
+            Next
+        End If
+    End Sub
+    Private Sub Button5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button5.Click
+        ListBox1.Items.Clear()
+        TextBox1.Text = ""
+        TextBox2.Text = ""
+    End Sub
+    Function SY()
+        On Error Resume Next
+        Dim qian As String
+        Dim huo As String
+        If ListBox1.Items.IndexOf(ListBox1.SelectedItems(0)) > 0 Then
+            huo = ListBox1.SelectedItems(0)
+            Dim t = ListBox1.SelectedItems(0)
+            qian = ListBox1.Items(ListBox1.Items.IndexOf(t) - 1)
+            ListBox1.Items(ListBox1.Items.IndexOf(t)) = qian
+            t = ListBox1.SelectedItems(0)
+            ListBox1.Items(ListBox1.Items.IndexOf(t)) = huo
+            ListBox1.ClearSelected()
+            ListBox1.SetSelected(ListBox1.Items.IndexOf(t) - 1, True)
+        End If
+    End Function
+    Function XY()
+        On Error Resume Next
+        Dim qian As String
+        Dim huo As String
+        If ListBox1.Items.IndexOf(ListBox1.SelectedItems(0)) < ListBox1.Items.Count - 1 Then
+            huo = ListBox1.SelectedItems(0)
+            Dim t = ListBox1.SelectedItems(0)
+            qian = ListBox1.Items(ListBox1.Items.IndexOf(t) + 1)
+            ListBox1.Items(ListBox1.Items.IndexOf(t) + 1) = huo
+            t = ListBox1.SelectedItems(0)
+            'MsgBox(ListBox1.Items.IndexOf(t))
+            ListBox1.Items(ListBox1.Items.IndexOf(t)) = qian
+            ListBox1.ClearSelected()
+            ListBox1.SetSelected(ListBox1.Items.IndexOf(t), True)
+        End If
+    End Function
+    Private Sub Button6_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button6.Click
+        SY()
+    End Sub
+    Private Sub Button7_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button7.Click
+        XY()
+    End Sub
+    Private Sub ListBox1_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ListBox1.SelectedIndexChanged
+        On Error Resume Next
+        TextBox1.Text = ListBox1.SelectedItems(0).ToString.Trim
+        TextBox2.Text = ""
+    End Sub
+    Private Sub LinkLabel1_LinkClicked(ByVal sender As System.Object, ByVal e As System.Windows.Forms.LinkLabelLinkClickedEventArgs) Handles LinkLabel1.LinkClicked
+        If TextBox1.Text.Trim <> "" Then
+            WebBrowser1.Url = New Uri(TextBox1.Text)
+            TabControl1.SelectedIndex = 1
+        End If
+    End Sub
+    Private Sub BackgroundWorker1_DoWork(ByVal sender As System.Object, ByVal e As System.ComponentModel.DoWorkEventArgs) Handles BackgroundWorker1.DoWork
+        ui(e.Argument, e.Result)
+    End Sub
+    'Dim wc As New System.Net.WebClient
+    Function ui(ByVal worker As System.ComponentModel.BackgroundWorker, ByVal e As System.ComponentModel.DoWorkEventArgs) As Long
+        On Error Resume Next
+        inc = 0
+        xinc = 0
+        For x = 1 To NumericUpDown1.Value
+            For y = 0 To ListBox1.Items.Count - 1
+                If xcc = 1 Then
+                    GoTo x
+                End If
+                ruri = lx.Items(y).ToString.Trim
+                Kill(rpath + "\*.dcf")
+
+                'Dim wb As New WebBrowser
+                'wb.Url = New Uri("about:blank")
+                'wb.Url = New Uri(ruri)
+                'While wb.DocumentText.Trim = "" Or wb.IsBusy = True
+                'End While
+                ' wc.Dispose()
+                '  Dim wck = New Net.WebClient()
+                Dim sd = ""
+                sd = wc.DownloadString(New Uri(ruri))
+                ' MsgBox(sd)
+                Dim xk = getdurl(sd)
+
+                Kill(rpath + "\*.dcf")
+                ' Dim wcn = New Net.WebClient()
+                '    wc.DownloadData(xk)
+                getdown(xk, rpath + CStr(inc) + "." + CStr(xinc) + ".dcf")
+                xinc = y
+            Next
+            My.Computer.FileSystem.WriteAllText(rpath + ".log", "DBank Cheater - " + xi + vbCrLf + "已经刷次 " + CStr(x) + " 次" + vbCrLf, False)
+            inc = x
+        Next
+x:
+    End Function
+    Private Sub BackgroundWorker1_RunWorkerCompleted(ByVal sender As System.Object, ByVal e As System.ComponentModel.RunWorkerCompletedEventArgs) Handles BackgroundWorker1.RunWorkerCompleted
+        On Error Resume Next
+        Timer1.Enabled = False
+        ProgressBar1.Value = 100
+
+        Dim r2 As String = CStr(NumericUpDown1.Value)
+
+        While (r2).Trim.Length < 3
+            r2 = "0" + r2
+        End While
+        Label4.Text = "(" + r2 + "/" + r2 + ")"
+        Me.Text = "DBank Cheater"
+        NotifyIcon1.Text = "DBank Cheater - " + xi
+        MsgBox("已完成刷次" + CStr(inc) + "次！", MsgBoxStyle.Information)
+        Kill(path + "\*.dcf")
+        Panel1.Enabled = True
+
+    End Sub
+    Private Sub Timer1_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Timer1.Tick
+        Me.Text = "DBank Cheater - 已刷 " + CStr(inc) + " 次"
+        NotifyIcon1.Text = "DBank Cheater - " + xi + " - 已刷 " + CStr(inc) + " 次"
+        Dim r1 As String = CStr(inc)
+        Dim r2 As String = CStr(NumericUpDown1.Value)
+        While (r1).Trim.Length < 3
+            r1 = "0" + r1
+        End While
+        While (r2).Trim.Length < 3
+            r2 = "0" + r2
+        End While
+        Label4.Text = "(" + r1 + "/" + r2 + ")"
+        If ProgressBar1.Value <= 100 Then
+            ProgressBar1.Value = CInt((inc / NumericUpDown1.Value) * 100)
+        Else
+            ProgressBar1.Value = 100
+        End If
+    End Sub
+    Public xcc = 0
+    Private Sub Button9_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button9.Click
+        On Error Resume Next
+        'BackgroundWorker1.WorkerSupportsCancellation = True
+        'BackgroundWorker1.CancelAsync()
+        If MsgBox("是否确定要停止刷次?", MsgBoxStyle.YesNo) = MsgBoxResult.Yes Then
+            xcc = 1
+            'wc.CancelAsync()
+            wc.Dispose()
+
+            Kill(rpath)
+            Kill(rpath + ".log")
+
+            Panel1.Enabled = True
+            Shell(My.Application.Info.DirectoryPath + "\DBankCheater.exe", AppWinStyle.NormalFocus, False)
+            Close()
+        End If
+
+
+    End Sub
+    Private Sub DCF_FormClosing(ByVal sender As Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
+        On Error Resume Next
+        NotifyIcon1.Icon = Nothing
+        savereg()
+        Kill(TextBox3.Text + "\*.dcf")
+
+    End Sub
+    Private Sub DCF_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+        On Error Resume Next
+        xi = getdatename()
+        ' MsgBox(xi)
+        getreg()
+        Kill(TextBox3.Text + "\*.dcf")
+        MkDir(TextBox3.Text)
+        NotifyIcon1.Icon = Me.Icon
+        WebBrowser1.Url = New Uri("http://www.dbank.com/")
+        If Command.Trim <> "" Then
+            Button2_Click(Nothing, Nothing)
+            NotifyIcon1_MouseDoubleClick(Nothing, Nothing)
+        End If
+    End Sub
+    Private Sub LinkLabel2_LinkClicked(ByVal sender As System.Object, ByVal e As System.Windows.Forms.LinkLabelLinkClickedEventArgs) Handles LinkLabel2.LinkClicked
+        If TextBox2.Text.Trim <> "" Then
+            WebBrowser1.Url = New Uri(TextBox2.Text)
+            TabControl1.SelectedIndex = 1
+        End If
+    End Sub
+    Private Sub 添加ToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles 添加ToolStripMenuItem.Click
+        Button3_Click(Nothing, Nothing)
+    End Sub
+    Private Sub 删除ToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles 删除ToolStripMenuItem.Click
+        Button4_Click(Nothing, Nothing)
+    End Sub
+    Private Sub 清空ToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles 清空ToolStripMenuItem.Click
+        Button5_Click(Nothing, Nothing)
+    End Sub
+    Private Sub 上移ToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles 上移ToolStripMenuItem.Click
+        SY()
+    End Sub
+    Private Sub 下移ToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles 下移ToolStripMenuItem.Click
+        XY()
+    End Sub
+    Private Sub NotifyIcon1_MouseDoubleClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles NotifyIcon1.MouseDoubleClick
+        If Me.Visible = True Then
+            Me.Visible = False
+            With NotifyIcon1
+                .BalloonTipIcon = ToolTipIcon.Info
+                .BalloonTipText = "DBank Cheater被最小化到这里！"
+                .BalloonTipTitle = "Gentle Tips"
+                .ShowBalloonTip(500)
+            End With
+        Else
+            Me.Visible = True
+        End If
+    End Sub
+    Function getreg()
+        On Error Resume Next
+        Dim xt = My.Computer.FileSystem.ReadAllText(My.Application.Info.DirectoryPath + "\" + "cache.ini")
+        TextBox3.Text = xt
+        Dim xx = My.Computer.FileSystem.ReadAllText(My.Application.Info.DirectoryPath + "\" + "time.ini")
+        NumericUpDown1.Value = CInt(xx)
+        Dim xq = My.Computer.FileSystem.ReadAllText(My.Application.Info.DirectoryPath + "\" + "link.ini")
+        Dim gx = xq.Split(",")
+        For x = 0 To gx.LongLength - 1
+            ListBox1.Items.Remove(gx(x))
+            ListBox1.Items.Add(gx(x))
+        Next
+        ListBox1.Items.Remove("")
+    End Function
+    Function savereg()
+        On Error Resume Next
+        If TextBox3.Text.Trim <> "" Then
+            My.Computer.FileSystem.WriteAllText(My.Application.Info.DirectoryPath + "\" + "cache.ini", TextBox3.Text.Trim, False)
+        End If
+        My.Computer.FileSystem.WriteAllText(My.Application.Info.DirectoryPath + "\" + "time.ini", CStr(NumericUpDown1.Value).Trim, False)
+        Dim xg As String = ""
+        ListBox1.Items.Remove("")
+        If ListBox1.Items.Count <> 0 Then
+            For x = 0 To ListBox1.Items.Count - 1
+                If xg = "" Then
+                    xg = ListBox1.Items(x).ToString.Trim
+                Else
+                    xg = xg + "," + ListBox1.Items(x).ToString.Trim
+                End If
+
+            Next
+        End If
+        My.Computer.FileSystem.WriteAllText(My.Application.Info.DirectoryPath + "\" + "link.ini", xg, False)
+    End Function
+    Private Sub 显示隐藏ToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles 显示隐藏ToolStripMenuItem.Click
+        NotifyIcon1_MouseDoubleClick(Nothing, Nothing)
+    End Sub
+End Class
