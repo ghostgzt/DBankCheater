@@ -1,0 +1,30 @@
+﻿Public Class DMain
+
+    Private Sub DMain_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+        On Error Resume Next
+        Me.Hide()
+        Me.Opacity = 0
+        Dim xk = My.Application.CommandLineArgs
+        If xk.Count > 0 Then
+            If xk(0).Trim <> "" Then
+                '    MsgBox(xk(0))
+                getdown(xk(0))
+            End If
+            If xk(1).Trim <> "" Then
+                Timer1.Interval = CInt(xk(1)) * 1000
+            End If
+        Else
+            End
+        End If
+    End Sub
+    Private Sub Timer1_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Timer1.Tick
+        End
+    End Sub
+    Function getdown(ByVal xurl As String)
+        On Error Resume Next
+        Dim wc = New System.Net.WebClient
+        wc.DownloadDataAsync(New Uri(xurl))
+        ' End
+        Timer1.Enabled = True
+    End Function
+End Class
